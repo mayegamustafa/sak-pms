@@ -17,8 +17,32 @@ class PropertyController extends Controller
         $properties = Property::where('owner_id', Auth::id())->get();
         return view('properties.index', compact('properties'));
     } */
-
     public function index(Request $request)
+    {
+        $query = Property::where('owner_id', Auth::id());
+    
+        if ($request->has('search')) {
+            $query->where('name', 'LIKE', "%{$request->search}%")
+                  ->orWhere('location', 'LIKE', "%{$request->search}%");
+        }
+    
+        if ($request->has('min_price') && $request->has('max_price')) {
+            $query->whereBetween('price_per_unit', [$request->min_price, $request->max_price]);
+        }
+    
+        $properties = $query->orderBy($request->get('sort', 'name'), 'asc')->paginate(5);
+        $propertyCount = $query->count();
+    
+        // Fix: Fetch total units from the 'units' table instead of 'properties'
+        $totalUnits = \App\Models\Unit::whereIn('property_id', $query->pluck('id'))->count();
+    
+        // If you want the average rent across all units
+        $averageRent = \App\Models\Unit::whereIn('property_id', $query->pluck('id'))->avg('rent_amount');
+    
+        return view('properties.index', compact('properties', 'propertyCount', 'totalUnits', 'averageRent'));
+    }
+    
+  /*  public function index(Request $request)
 {
     $query = Property::where('owner_id', Auth::id());
 
@@ -41,12 +65,14 @@ return view('properties.index', compact('properties', 'propertyCount', 'totalUni
 
 
    // return view('properties.index', compact('properties'));
+}  */
+
+public function create()
+{
+    $property = new Property; // Create a new empty property object
+    return view('properties.create', compact('property'));
 }
 
-    public function create()
-    {
-        return view('properties.create');
-    }
 
     public function store(Request $request)
     {
@@ -75,6 +101,13 @@ return view('properties.index', compact('properties', 'propertyCount', 'totalUni
         }
         return view('properties.edit', compact('property'));
     }
+
+ /*   public function edit($id)
+{
+    $property = Property::findOrFail($id);
+    return view('properties.edit', compact('property'));
+}
+*/
 
     public function update(Request $request, Property $property)
     {
@@ -109,7 +142,10 @@ return view('properties.index', compact('properties', 'propertyCount', 'totalUni
 public function exportPdf()
 {
     $properties = Property::all();
-    $pdf = PDF::loadView('properties.pdf', compact('properties'));
+   // $pdf = PDF::loadView('properties.pdf', compact('properties'));
+   // return $pdf->download('properties.pdf');
+
+    $pdf = PDF::loadView('properties.pdf', ['properties' => Property::all()]);
     return $pdf->download('properties.pdf');
 }
 
@@ -145,6 +181,7 @@ public function performanceChart() {
 public function export()
     {
         return Excel::download(new PropertiesExport, 'properties.xlsx');
+        
     }
 
    /* public function exportPdf()

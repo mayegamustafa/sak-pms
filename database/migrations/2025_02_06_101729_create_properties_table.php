@@ -12,18 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('properties', function (Blueprint $table) {
-            
             $table->id();
             $table->string('name');
             $table->string('location');
-            $table->integer('units')->default(0);
-            $table->decimal('price_per_unit', 10, 2);
+            $table->string('type'); // e.g., Apartment, Flat, Bungalow
             $table->unsignedBigInteger('owner_id');
             $table->timestamps();
     
             $table->foreign('owner_id')->references('id')->on('users')->onDelete('cascade');
         });
-        
     }
 
     /**

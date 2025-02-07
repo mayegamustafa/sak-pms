@@ -10,8 +10,8 @@ use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\PropertyController;
 use App\Exports\PropertiesExport;
 use Maatwebsite\Excel\Facades\Excel;
-
-
+use App\Http\Controllers\UnitController;
+use App\Http\Controllers\TenantController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -79,7 +79,8 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::resource('properties', PropertyController::class);
 });
-
+// Unit routes (nested under properties)
+Route::resource('properties.units', UnitController::class);
 
 // routes/web.php
 
@@ -101,3 +102,14 @@ Route::get('/properties/{id}', [PropertyController::class, 'show'])->name('prope
 
 Route::get('/properties/export', [PropertyController::class, 'export'])->name('properties.export');
 
+//ROEUEEUEUH
+
+
+Route::get('/properties/report', [PropertyController::class, 'report'])->name('properties.report');
+Route::get('/properties/performance-chart', [PropertyController::class, 'performanceChart'])->name('properties.performance-chart');
+Route::get('/properties/export', [PropertyController::class, 'export'])->name('properties.export');
+Route::get('/properties/export-pdf', [PropertyController::class, 'exportPDF'])->name('properties.export-pdf');
+
+Route::resource('units', UnitController::class);
+
+Route::resource('tenants', TenantController::class);

@@ -10,10 +10,19 @@ class Property extends Model
     use HasFactory;
     //use HasFactory;
 
-    protected $fillable = ['name', 'location', 'units', 'price_per_unit', 'owner_id'];
+   // protected $fillable = ['name', 'location', 'units', 'price_per_unit'];
 
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
+    }
+
+  //  use HasFactory;
+
+    protected $fillable = ['name', 'location', 'type', 'owner_id'];
+
+    public function units()
+    {
+        return $this->hasMany(Unit::class);
     }
 }

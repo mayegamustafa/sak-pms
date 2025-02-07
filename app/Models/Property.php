@@ -25,4 +25,9 @@ class Property extends Model
     {
         return $this->hasMany(Unit::class);
     }
+
+    public function leases()
+    {
+        return $this->hasMany(Lease::class); // A property can have many leases
+    }
 }

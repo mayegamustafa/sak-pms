@@ -94,6 +94,8 @@ public function create()
         return redirect()->route('properties.index')->with('success', 'Property added successfully!');
     }
 
+    
+
     public function edit(Property $property)
     {
         if ($property->owner_id !== Auth::id()) {

@@ -21,8 +21,17 @@ class TenantController extends Controller
     public function create()
     {
         $properties = Property::all();
-        return view('tenants.create', compact('properties'));
+        $units = Unit::all();
+        return view('tenants.create', compact('properties','units'));
     }
+
+ /*   public function getUnits($property_id)
+{
+    $units = \App\Models\Unit::where('property_id', $property_id)->get();
+    return response()->json($units);
+}
+*/
+
 
     // Store a new tenant in the database
    /* public function store(Request $request)

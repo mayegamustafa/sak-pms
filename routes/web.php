@@ -12,6 +12,12 @@ use App\Exports\PropertiesExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\PaymentAnalysisController;
+use App\Http\Controllers\LeaseController;
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -113,3 +119,29 @@ Route::get('/properties/export-pdf', [PropertyController::class, 'exportPDF'])->
 Route::resource('units', UnitController::class);
 
 Route::resource('tenants', TenantController::class);
+
+// Fetch Units based on selected Property
+//Route::get('/get-units/{property_id}', [TenantController::class, 'getUnits']);
+Route::get('/get-units/{property_id}', [TenantController::class, 'getUnits']);
+
+
+// routes/web.php
+
+Route::resource('invoices', InvoiceController::class);
+
+// routes/web.php
+
+Route::post('invoices/{invoice}/pay', [InvoiceController::class, 'payInvoice'])->name('invoices.pay');
+// routes/web.php
+
+//Route::get('invoices/{invoice}/pdf', [InvoiceController::class, 'generateInvoicePDF'])->name('invoices.pdf');
+// routes/web.php
+
+Route::get('invoices/{id}', [InvoiceController::class, 'show'])->name('invoices.show');
+// routes/web.php
+
+Route::get('invoices/{id}/pdf', [InvoiceController::class, 'generateInvoicePDF'])->name('invoices.pdf');
+
+Route::resource('leases', LeaseController::class);
+Route::resource('payments', PaymentController::class);
+Route::get('report/payments', [PaymentAnalysisController::class, 'report'])->name('payments.report');

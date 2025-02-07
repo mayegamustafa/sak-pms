@@ -16,6 +16,7 @@ return [
     |
     */
 
+
     'name' => env('APP_NAME', 'Laravel'),
 
     /*
@@ -164,10 +165,13 @@ return [
          * Application Service Providers...
          */
         App\Providers\AppServiceProvider::class,
+        Barryvdh\DomPDF\ServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+      //  'PDF' => Barryvdh\DomPDF\Facade::class,
+
     ])->toArray(),
 
     /*
@@ -181,8 +185,15 @@ return [
     |
     */
 
-    'aliases' => Facade::defaultAliases()->merge([
+   /* 'aliases' => Facade::defaultAliases()->merge([
+        'PDF' => Barryvdh\DomPDF\Facade::class,
+
         // 'Example' => App\Facades\Example::class,
-    ])->toArray(),
+    ])->toArray(),  */
+
+    'aliases' => [
+    // other aliases...
+    'PDF' => Barryvdh\DomPDF\Facade::class,
+],
 
 ];

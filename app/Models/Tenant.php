@@ -28,4 +28,8 @@ class Tenant extends Model
       {
           return $this->belongsTo(Unit::class);
       }
+      public function leases()
+      {
+          return $this->hasMany(Lease::class); // A tenant can have many leases
+      }
 }

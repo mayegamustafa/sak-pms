@@ -19,7 +19,17 @@ class UnitController extends Controller
         $properties = Property::all();
         return view('units.create', compact('properties'));
     }
-
+    public function getUnits($property_id)
+    {
+        $units = Unit::where('property_id', $property_id)->get();
+    
+        // Check the returned data structure for debugging
+        return response()->json([
+            'status' => 'success',
+            'units' => $units
+        ]);
+    }
+    
     public function store(Request $request)
     {
         $request->validate([

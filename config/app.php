@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Filesystem\Filesystem;
+$files = app(Filesystem::class);
+
 
 return [
 
@@ -17,6 +20,7 @@ return [
     */
 
 
+    
     'name' => env('APP_NAME', 'Laravel'),
 
     /*
@@ -156,23 +160,21 @@ return [
     |
     */
 
-    'providers' => ServiceProvider::defaultProviders()->merge([
-        /*
-         * Package Service Providers...
-         */
+'providers' => ServiceProvider::defaultProviders()->merge([
+    /*
+     * Package Service Providers...
+     */
+    Barryvdh\DomPDF\ServiceProvider::class,
+    Illuminate\Filesystem\FilesystemServiceProvider::class,
 
-        /*
-         * Application Service Providers...
-         */
-        App\Providers\AppServiceProvider::class,
-        Barryvdh\DomPDF\ServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
-      //  'PDF' => Barryvdh\DomPDF\Facade::class,
-
-    ])->toArray(),
+    /*
+     * Application Service Providers...
+     */
+    App\Providers\AppServiceProvider::class,
+    App\Providers\AuthServiceProvider::class,
+    App\Providers\EventServiceProvider::class,
+    App\Providers\RouteServiceProvider::class,
+])->toArray(),
 
     /*
     |--------------------------------------------------------------------------
@@ -191,9 +193,14 @@ return [
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),  */
 
-    'aliases' => [
-    // other aliases...
+ 'aliases' => Facade::defaultAliases()->merge([
     'PDF' => Barryvdh\DomPDF\Facade::class,
-],
+])->toArray(),
+
+/*
+'aliases' => [
+    'PDF' => Barryvdh\DomPDF\Facade::class,
+], */
+
 
 ];

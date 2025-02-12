@@ -143,5 +143,13 @@ Route::get('invoices/{id}', [InvoiceController::class, 'show'])->name('invoices.
 Route::get('invoices/{id}/pdf', [InvoiceController::class, 'generateInvoicePDF'])->name('invoices.pdf');
 
 Route::resource('leases', LeaseController::class);
-Route::resource('payments', PaymentController::class);
+//Route::resource('payments', PaymentController::class);
 Route::get('report/payments', [PaymentAnalysisController::class, 'report'])->name('payments.report');
+
+
+Route::get('invoices/{invoice}/payments/create', [PaymentController::class, 'create'])->name('payments.create');
+Route::post('invoices/{invoice}/payments', [PaymentController::class, 'store'])->name('payments.store');
+
+// routes/web.php
+
+Route::get('/invoices/{id}/download', [InvoiceController::class, 'download'])->name('invoices.download');

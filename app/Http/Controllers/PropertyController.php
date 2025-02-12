@@ -73,8 +73,42 @@ public function create()
     return view('properties.create', compact('property'));
 }
 
+public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'location' => 'required|string|max:255',
+        'units' => 'required|integer|min:1',
+    ]);
 
-    public function store(Request $request)
+    Property::create([
+        'name' => $request->name,
+        'location' => $request->location,
+        'units' => $request->units,
+        'owner_id' => Auth::id(),
+    ]);
+
+    return redirect()->route('properties.index')->with('success', 'Property added successfully!');
+}
+
+public function update(Request $request, Property $property)
+{
+    if ($property->owner_id !== Auth::id()) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'location' => 'required|string|max:255',
+        'units' => 'required|integer|min:1',
+    ]);
+
+    $property->update($request->only(['name', 'location', 'units']));
+
+    return redirect()->route('properties.index')->with('success', 'Property updated successfully!');
+}
+
+ /*   public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -94,7 +128,7 @@ public function create()
         return redirect()->route('properties.index')->with('success', 'Property added successfully!');
     }
 
-    
+    */
 
     public function edit(Property $property)
     {
@@ -111,7 +145,7 @@ public function create()
 }
 */
 
-    public function update(Request $request, Property $property)
+   /* public function update(Request $request, Property $property)
     {
         if ($property->owner_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
@@ -127,7 +161,7 @@ public function create()
         $property->update($request->all());
 
         return redirect()->route('properties.index')->with('success', 'Property updated successfully!');
-    }
+    } */
 
     public function destroy(Property $property)
     {

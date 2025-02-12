@@ -13,11 +13,22 @@ use Barryvdh\DomPDF\Facade as PDF;
 
 class InvoiceController extends Controller
 {
+
+    public function download($id)
+{
+    $invoice = Invoice::with(['tenant', 'property', 'payments'])->findOrFail($id);
+
+    $pdf = PDF::loadView('invoices.pdf.invoice', compact('invoice'));
+
+    return $pdf->download('Invoice_' . $invoice->invoice_number . '.pdf');
+}
+
     public function index()
     {
         $invoices = Invoice::with('tenant')->paginate(10);
         return view('invoices.index', compact('invoices'));
     }
+    
 
     public function create()
     {

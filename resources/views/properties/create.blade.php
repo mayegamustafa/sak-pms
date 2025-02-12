@@ -14,6 +14,10 @@
             <input type="text" name="location" class="form-control" required>
         </div>
         <div class="mb-3">
+        <label for="units">Units:</label>
+        <input type="number" name="units" id="units" required>
+</div>
+        <div class="mb-3">
             <label>Type</label>
             <select name="type" class="form-control" required>
                 <option value="Apartment">Apartment</option>

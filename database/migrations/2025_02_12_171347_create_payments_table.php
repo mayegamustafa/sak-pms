@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->constrained()->onDelete('cascade');
-            $table->foreignId('lease_id')->constrained()->onDelete('cascade');
+            $table->foreignId('invoice_id')->constrained()->onDelete('cascade');
             $table->decimal('amount', 10, 2);
             $table->date('payment_date');
+            $table->string('payment_method')->nullable();  // e.g., Cash, Bank Transfer, Mobile Money
+            $table->string('reference')->nullable();       // Transaction reference
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

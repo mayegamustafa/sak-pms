@@ -4,40 +4,53 @@ use App\Models\Payment;
 use App\Models\Lease;
 use Illuminate\Http\Request;
 
+use App\Models\Invoice;
+
 
 class PaymentController extends Controller
 {
-    public function create()
+    public function create($invoice_id)
     {
-        $leases = Lease::all();
-        return view('payments.create', compact('leases'));
+        $invoice = Invoice::with('tenant')->findOrFail($invoice_id);
+        return view('payments.create', compact('invoice'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, $invoice_id)
     {
+        $invoice = Invoice::findOrFail($invoice_id);
+
         $request->validate([
-            'lease_id' => 'required|exists:leases,id',
-            'amount' => 'required|numeric',
+            'amount' => 'required|numeric|min:1|max:' . $invoice->outstanding_amount,
             'payment_date' => 'required|date',
+            'payment_method' => 'nullable|string',
+            'reference' => 'nullable|string',
         ]);
 
-        Payment::create([
-            'tenant_id' => Lease::find($request->lease_id)->tenant_id,
-            'lease_id' => $request->lease_id,
+        // Create Payment
+        $payment = Payment::create([
+            'invoice_id' => $invoice->id,
             'amount' => $request->amount,
             'payment_date' => $request->payment_date,
+            'payment_method' => $request->payment_method,
+            'reference' => $request->reference,
+            'notes' => $request->notes,
         ]);
 
-        return redirect()->route('payments.index')->with('success', 'Payment recorded successfully');
+        // Update Invoice Status
+        $totalPaid = $invoice->payments()->sum('amount') + $request->amount;
+
+        if ($totalPaid >= $invoice->amount) {
+            $invoice->status = 'paid';
+        } elseif ($invoice->due_date < now()) {
+            $invoice->status = 'overdue';
+        } else {
+            $invoice->status = 'pending';
+        }
+
+        $invoice->paid_amount = $totalPaid;
+        $invoice->save();
+
+        return redirect()->route('invoices.index')->with('success', 'Payment recorded successfully!');
     }
-
- 
-    public function report()
-    {
-        $leases = Lease::with('payments', 'property')->get();
-        return view('reports.payment', compact('leases'));
-    }
-
-
 
 }

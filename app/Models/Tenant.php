@@ -32,4 +32,11 @@ class Tenant extends Model
       {
           return $this->hasMany(Lease::class); // A tenant can have many leases
       }
+
+      public function tenant() {
+        return $this->belongsTo(Tenant::class);
+    }
+    
+ 
+    
 }

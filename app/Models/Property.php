@@ -30,4 +30,17 @@ class Property extends Model
     {
         return $this->hasMany(Lease::class); // A property can have many leases
     }
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class, 'property_id');
+    }
+
+    public function tenant() {
+        return $this->belongsTo(Tenant::class);
+    }
+    
+    public function property() {
+        return $this->belongsTo(Property::class);
+    }
+    
 }

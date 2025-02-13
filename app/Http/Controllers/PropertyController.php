@@ -79,6 +79,8 @@ public function store(Request $request)
         'name' => 'required|string|max:255',
         'location' => 'required|string|max:255',
         'units' => 'required|integer|min:1',
+        'type' => 'required|string',  // Ensure 'type' is validated
+        
     ]);
 
     Property::create([
@@ -86,6 +88,7 @@ public function store(Request $request)
         'location' => $request->location,
         'units' => $request->units,
         'owner_id' => Auth::id(),
+        'type' => $request->type,  // Store the selected 'type'
     ]);
 
     return redirect()->route('properties.index')->with('success', 'Property added successfully!');

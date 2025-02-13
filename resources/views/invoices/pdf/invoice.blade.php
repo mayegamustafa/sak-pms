@@ -19,18 +19,27 @@
 </head>
 <body>
 
-    <div class="header">
+  {{--  <div class="header">
         <h1>Invoice</h1>
         <h4>{{ $invoice->property->name }}</h4>
     </div>
+--}}
+<div class="header">
+<h4>{{ $invoice->property ? $invoice->property->name : 'N/A' }}</h4>
+<strong>Tenant:</strong> {{ $invoice->tenant ? $invoice->tenant->name : 'N/A' }} <br>
+</div>
 
     <div class="details">
         <strong>Invoice Number:</strong> {{ $invoice->invoice_number }} <br>
         <strong>Tenant:</strong> {{ $invoice->tenant->name }} <br>
-        <strong>Property:</strong> {{ $invoice->property->name }} <br>
+        <strong>Property:</strong> {{ $invoice->property ? $invoice->property->name : 'N/A' }} <br>
         <strong>Unit:</strong> {{ $invoice->unit }} <br>
-        <strong>Issued Date:</strong> {{ $invoice->issue_date->format('d M Y') }} <br>
-        <strong>Due Date:</strong> {{ $invoice->due_date->format('d M Y') }} <br>
+        <strong>Issued Date:</strong>
+{{ $invoice->issue_date ? \Carbon\Carbon::parse($invoice->issue_date)->format('d M Y') : 'N/A' }} <br>
+
+<strong>Due Date:</strong>
+{{ $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('d M Y') : 'N/A' }} <br>
+
     </div>
 
     <table width="100%" border="1" cellspacing="0" cellpadding="5">
@@ -42,7 +51,10 @@
         </thead>
         <tbody>
             <tr>
-                <td>Rent for {{ $invoice->issue_date->format('F Y') }}</td>
+                <td>Rent for <strong>Due Date:</strong>
+
+{{ $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('d M Y') : 'N/A' }} <br>
+</td>
                 <td>{{ number_format($invoice->amount) }}</td>
             </tr>
         </tbody>

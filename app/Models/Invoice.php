@@ -37,6 +37,16 @@ public function getOutstandingAmountAttribute()
     return $this->amount - $this->total_paid;
 }
 
+// Define the relationship
+public function property()
+{
+    return $this->belongsTo(Property::class, 'property_id'); 
+}
+
+protected $casts = [
+    'issue_date' => 'datetime',
+    'due_date' => 'datetime',
+];
 
 }
 

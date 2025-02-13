@@ -103,7 +103,10 @@ Route::get('properties/performance-chart', [PropertyController::class, 'showPerf
 Route::get('/properties/report', [PropertyController::class, 'report'])->name('properties.report');
 Route::get('/properties/performance-chart', [PropertyController::class, 'performanceChart'])->name('properties.performance-chart');
 Route::get('/properties/export-pdf', [PropertyController::class, 'exportPdf'])->name('properties.export-pdf');
-Route::get('/properties/{id}', [PropertyController::class, 'show'])->name('properties.show');
+//Route::get('/properties/{id}', [PropertyController::class, 'show'])->name('properties.show');
+// Example of fixing the conflict
+Route::get('properties/{id}', [PropertyController::class, 'show'])->name('properties.show');
+Route::get('properties/{id}/edit', [PropertyController::class, 'edit'])->name('properties.edit');
 
 
 Route::get('/properties/export', [PropertyController::class, 'export'])->name('properties.export');

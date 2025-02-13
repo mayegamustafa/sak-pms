@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Filesystem\Filesystem;
-$files = app(Filesystem::class);
+
 
 
 return [
@@ -166,7 +166,7 @@ return [
      */
     Barryvdh\DomPDF\ServiceProvider::class,
     Illuminate\Filesystem\FilesystemServiceProvider::class,
-
+    
     /*
      * Application Service Providers...
      */

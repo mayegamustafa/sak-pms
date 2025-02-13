@@ -9,8 +9,9 @@
         <a href="{{ route('properties.create') }}" class="btn btn-primary">Add Property</a>
         <a href="{{ route('properties.report') }}" class="btn btn-info">View Property Report</a>
         <a href="{{ route('properties.performance-chart') }}" class="btn btn-warning">View Performance Chart</a>
-        <a href="{{ route('properties.export') }}" class="btn btn-success">Export to Excel</a>
-        <a href="{{ route('properties.export-pdf') }}" class="btn btn-danger">Export to PDF</a>
+        <a href="{{ route('properties.export.pdf') }}" class="btn btn-danger">Export to PDF</a>
+<a href="{{ route('properties.export.excel') }}" class="btn btn-success">Export to Excel</a>
+
     </div>
 
     <!-- Display Property Summary Stats -->

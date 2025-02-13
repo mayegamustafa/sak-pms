@@ -109,15 +109,18 @@ Route::get('properties/{id}', [PropertyController::class, 'show'])->name('proper
 Route::get('properties/{id}/edit', [PropertyController::class, 'edit'])->name('properties.edit');
 
 
-Route::get('/properties/export', [PropertyController::class, 'export'])->name('properties.export');
+//Route::get('/properties/export', [PropertyController::class, 'export'])->name('properties.export');
 
 //ROEUEEUEUH
 
 
 Route::get('/properties/report', [PropertyController::class, 'report'])->name('properties.report');
 Route::get('/properties/performance-chart', [PropertyController::class, 'performanceChart'])->name('properties.performance-chart');
-Route::get('/properties/export', [PropertyController::class, 'export'])->name('properties.export');
-Route::get('/properties/export-pdf', [PropertyController::class, 'exportPDF'])->name('properties.export-pdf');
+//Route::get('/properties/export', [PropertyController::class, 'export'])->name('properties.export');
+//Route::get('/properties/export-pdf', [PropertyController::class, 'exportPDF'])->name('properties.export-pdf');
+
+Route::get('/properties/export/pdf', [PropertyController::class, 'exportPdf'])->name('properties.export.pdf');
+Route::get('/properties/export/excel', [PropertyController::class, 'exportExcel'])->name('properties.export.excel');
 
 Route::resource('units', UnitController::class);
 
@@ -156,3 +159,4 @@ Route::post('invoices/{invoice}/payments', [PaymentController::class, 'store'])-
 // routes/web.php
 
 Route::get('/invoices/{id}/download', [InvoiceController::class, 'download'])->name('invoices.download');
+

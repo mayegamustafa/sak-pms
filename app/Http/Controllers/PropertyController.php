@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade as PDF;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PropertiesExport;
+use Mpdf\Mpdf;
+
+use Mpdf\Output\Destination;
 
 
 class PropertyController extends Controller
@@ -177,7 +180,55 @@ public function update(Request $request, Property $property)
     }
 
     // In your PropertyController
+   /* public function exportPdf()
+    {
+        $properties = Property::all();
 
+        // Load the HTML view
+        $html = view('properties.pdf', compact('properties'))->render();
+
+        // Initialize mPDF
+        $mpdf = new Mpdf();
+
+        // Write HTML to PDF
+        $mpdf->WriteHTML($html);
+
+        // Output as a downloadable file
+        return response()->streamDownload(
+            fn() => print($mpdf->Output('', 'S')),
+            'properties.pdf'
+        );
+    } */
+    public function exportExcel()
+    {
+        return Excel::download(new PropertiesExport, 'properties.xlsx');
+    }
+    
+    public function exportPdf()
+{
+    $properties = Property::all();
+
+    // Load view as HTML
+    $html = view('properties.pdf', compact('properties'))->render();
+
+    try {
+        // Initialize mPDF
+        $mpdf = new Mpdf();
+
+        // Write HTML to PDF
+        $mpdf->WriteHTML($html);
+
+        // Output the PDF for download
+        return response()->streamDownload(function () use ($mpdf) {
+            echo $mpdf->Output('', Destination::STRING_RETURN);
+        }, 'properties.pdf');
+
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
+/*
 public function exportPdf()
 {
     $properties = Property::all();
@@ -187,7 +238,7 @@ public function exportPdf()
     $pdf = PDF::loadView('properties.pdf', ['properties' => Property::all()]);
     return $pdf->download('properties.pdf');
 }
-
+*/
 public function generateReport()
 {
     $totalProperties = Property::count();

@@ -29,7 +29,13 @@ class Kernel extends ConsoleKernel
 
 protected function schedule(Schedule $schedule)
 {
-    $schedule->command('invoices:remind')->daily();
+   // $schedule->command('invoices:remind')->daily();
+   $schedule->call(function () {
+    app(InvoiceController::class)->sendSMSReminders();
+})->dailyAt('08:00'); // Run every day at 8 AM
 }
+
+
+
 
 }

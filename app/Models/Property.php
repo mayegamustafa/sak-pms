@@ -19,12 +19,29 @@ class Property extends Model
 
   //  use HasFactory;
 
-    protected $fillable = ['name', 'location', 'type', 'owner_id'];
+    //protected $fillable = ['name', 'location', 'type', 'owner_id'];
 
+    protected $fillable = [
+        'name',
+        'type',
+        'num_units',
+        'num_floors',
+        'location',      // Add this line
+        'owner_id',
+        'manager_id',
+    ];
     public function units()
     {
         return $this->hasMany(Unit::class);
     }
+
+   
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
+
+
 
     public function leases()
     {
@@ -42,5 +59,6 @@ class Property extends Model
     public function property() {
         return $this->belongsTo(Property::class);
     }
+    
     
 }

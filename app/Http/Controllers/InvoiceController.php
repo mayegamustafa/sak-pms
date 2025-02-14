@@ -12,9 +12,28 @@ use Barryvdh\DomPDF\Facade as PDF;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
+use App\Notifications\SMSPaymentReminder;
+use Illuminate\Support\Facades\Notification;
 
 class InvoiceController extends Controller
 {
+
+    public function sendSMSReminders()
+{
+    $dueInvoices = Invoice::where('due_date', '<=', now()->addDays(3)) // Invoices due in 3 days
+                          ->where('status', 'pending')
+                          ->with('tenant')
+                          ->get();
+
+    foreach ($dueInvoices as $invoice) {
+        if (!empty($invoice->tenant->phone_number)) { // Ensure tenant has a phone number
+            Notification::send($invoice->tenant, new SMSPaymentReminder($invoice));
+        }
+    }
+
+    return back()->with('success', 'SMS payment reminders sent successfully.');
+}
+
 
     public function download($id)
     {

@@ -15,7 +15,12 @@ class Tenant extends Model
         'lease_start_date', 
         'rent_amount',
         '_token', // Add _token here
+        'email', 
+        'phone_number',
     ];
+
+   
+
 
       // Define the relationship with the Property model
       public function property()

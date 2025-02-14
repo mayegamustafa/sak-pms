@@ -5,6 +5,7 @@
     <h1>Invoices</h1>
 
     <a href="{{ route('invoices.create') }}" class="btn btn-primary mb-3">Create Invoice</a>
+    <a href="{{ route('invoices.smsReminders') }}" class="btn btn-sm btn-warning">Send SMS Reminders</a>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>

@@ -16,7 +16,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentAnalysisController;
 use App\Http\Controllers\LeaseController;
-
+use App\Models\Unit;
 
 /*
 |--------------------------------------------------------------------------
@@ -160,3 +160,18 @@ Route::post('invoices/{invoice}/payments', [PaymentController::class, 'store'])-
 
 Route::get('/invoices/{id}/download', [InvoiceController::class, 'download'])->name('invoices.download');
 
+Route::get('/invoices/send-sms-reminders', [InvoiceController::class, 'sendSMSReminders'])->name('invoices.smsReminders');
+Route::get('/tenants/{tenant}/send-sms', [TenantController::class, 'sendSmsToTenant'])->name('tenants.sendSms');
+
+
+
+Route::get('/properties/{propertyId}/vacant-units', function ($propertyId) {
+    // Fetch vacant units for the selected property
+    $vacantUnits = Unit::where('property_id', $propertyId)
+                       ->where('status', 'Vacant')  // Assuming 'Vacant' is the status for available units
+                       ->get();
+
+    return response()->json([
+        'units' => $vacantUnits
+    ]);
+});

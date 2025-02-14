@@ -11,15 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
+           // Create the properties table
         Schema::create('properties', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->enum('type', ['House', 'Flat']); // 'House' or 'Flat'
+            $table->integer('num_units'); // Number of units in the property
+            $table->integer('num_floors')->nullable(); // Number of floors (for flats)
             $table->string('location');
-            $table->string('type'); // e.g., Apartment, Flat, Bungalow
-            $table->unsignedBigInteger('owner_id');
+            $table->unsignedBigInteger('owner_id'); // Property owner ID
+            $table->unsignedBigInteger('manager_id')->nullable(); // Manager ID (foreign key)
             $table->timestamps();
-    
-            $table->foreign('owner_id')->references('id')->on('users')->onDelete('cascade');
+
+            // Foreign keys
+            $table->foreign('owner_id')->references('id')->on('users')->onDelete('cascade'); // Foreign key for property owner
+            $table->foreign('manager_id')->references('id')->on('users')->onDelete('set null'); // Foreign key for property manager
         });
     }
 

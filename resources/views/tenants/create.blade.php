@@ -16,7 +16,7 @@
         <!-- Property Selection -->
         <div class="mb-3">
             <label for="property_id" class="form-label">Select Property</label>
-            <select name="property_id" id="property_id" class="form-control" required>
+            <select name="property_id" id="property_id" class="form-control" onchange="getAvailableUnits()" required>
                 <option value="">-- Select Property --</option>
                 @foreach ($properties as $property)
                     <option value="{{ $property->id }}">{{ $property->name }}</option>
@@ -24,16 +24,19 @@
             </select>
         </div>
 
-      
-
+        <!-- Select Units (Only Vacant) -->
         <div class="mb-3">
-            <label for="id" class="form-label">Select Property</label>
-            <select name="id" id="id" class="form-control" required>
-                <option value="">-- Select units --</option>
-                @foreach ($units as $unit)
-                    <option value="{{ $unit->id }}">{{ $unit->unit_number }}</option>
-                @endforeach
+            <label for="unit_id" class="form-label">Select Unit</label>
+            <select name="unit_id" id="unit_id" class="form-control" required>
+                <option value="">-- Select Unit --</option>
+                <!-- Vacant units will be populated dynamically -->
             </select>
+        </div>
+
+        <!-- Phone Number -->
+        <div class="form-group mb-3">
+            <label for="phone_number">Phone Number</label>
+            <input type="text" name="phone_number" id="phone_number" class="form-control" placeholder="Enter phone number" required>
         </div>
 
         <!-- Lease Start Date -->
@@ -52,4 +55,39 @@
         <button type="submit" class="btn btn-primary">Add Tenant</button>
     </form>
 </div>
+
+<script>
+    // Function to fetch available vacant units when a property is selected
+    function getAvailableUnits() {
+        const propertyId = document.getElementById('property_id').value;
+
+        // Ensure a property is selected
+        if (propertyId) {
+            // Clear previous unit options
+            const unitDropdown = document.getElementById('unit_id');
+            unitDropdown.innerHTML = '<option value="">-- Select Unit --</option>';
+
+            // Fetch vacant units for the selected property
+            fetch(`/properties/${propertyId}/vacant-units`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.units.length > 0) {
+                        // Populate the unit dropdown with vacant units
+                        data.units.forEach(unit => {
+                            let option = document.createElement('option');
+                            option.value = unit.id;
+                            option.innerText = `Unit ${unit.unit_number}`;
+                            unitDropdown.appendChild(option);
+                        });
+                    } else {
+                        // If no vacant units are available
+                        let option = document.createElement('option');
+                        option.innerText = "No vacant units available";
+                        unitDropdown.appendChild(option);
+                    }
+                })
+                .catch(error => console.error('Error fetching units:', error));
+        }
+    }
+</script>
 @endsection

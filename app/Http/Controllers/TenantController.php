@@ -7,6 +7,8 @@ use App\Models\Tenant;
 use App\Models\Property;
 use App\Models\Unit;
 use Illuminate\Http\Request;
+use App\Services\SmsService;
+
 
 class TenantController extends Controller
 {
@@ -24,6 +26,22 @@ class TenantController extends Controller
         $units = Unit::all();
         return view('tenants.create', compact('properties','units'));
     }
+
+public function sendSmsToTenant($tenantId, SmsService $smsService)
+{
+    $tenant = Tenant::findOrFail($tenantId);
+
+    if (!$tenant->phone_number) {
+        return redirect()->back()->with('error', 'Tenant has no phone number.');
+    }
+
+    $message = "Hello {$tenant->name}, this is a test SMS from our property system.";
+
+    $smsService->sendSms($tenant->phone_number, $message);
+
+    return redirect()->back()->with('success', 'SMS sent successfully.');
+}
+
 
  /*   public function getUnits($property_id)
 {
@@ -48,8 +66,39 @@ class TenantController extends Controller
 
         return redirect()->route('tenants.index')->with('success', 'Tenant added successfully!');
     }  */
-
     public function store(Request $request)
+    {
+        // Start a transaction to ensure both the tenant and unit are saved correctly
+        DB::beginTransaction();
+        
+        try {
+            // Create a new tenant
+            $tenant = Tenant::create([
+                'name' => $request->name,
+                'property_id' => $request->property_id,
+                'unit_id' => $request->unit_id,
+                'phone_number' => $request->phone_number,
+                'lease_start_date' => $request->lease_start_date,
+                'rent_amount' => $request->rent_amount,
+            ]);
+
+            // Update the selected unit to "Occupied"
+            $unit = Unit::findOrFail($request->unit_id);
+            $unit->status = 'Occupied';  // Mark the unit as occupied
+            $unit->save();
+
+            // Commit the transaction
+            DB::commit();
+
+            return redirect()->route('tenants.index')->with('success', 'Tenant added successfully');
+        } catch (\Exception $e) {
+            // Rollback the transaction if anything goes wrong
+            DB::rollBack();
+
+            return back()->with('error', 'An error occurred while adding the tenant');
+        }
+    }
+ /*   public function store(Request $request)
 {
     // Exclude _token from the request before passing it to the model
     $requestData = $request->except('_token');
@@ -61,14 +110,16 @@ class TenantController extends Controller
         'unit_id' => 'nullable|exists:units,id',
         'lease_start_date' => 'required|date',
         'rent_amount' => 'required|numeric',
-        'email' => 'nullable|email', // Add validation if needed
+       // 'email' => 'nullable|email', // Add validation if needed
+        'email' => 'nullable|email|unique:tenants,email',
+        'phone_number' => 'nullable|string|min:10|max:15',
     ]);
 
     // Create the tenant using the request data
     Tenant::create($requestData);
 
     return redirect()->route('tenants.index')->with('success', 'Tenant added successfully!');
-}
+}  */
 
 
     // Display a single tenant
@@ -93,7 +144,9 @@ class TenantController extends Controller
             'property_id' => 'required|exists:properties,id',
             'unit_id' => 'nullable|exists:units,id',
             'lease_start_date' => 'required|date',
-            'rent_amount' => 'required|numeric',
+           // 'rent_amount' => 'required|numeric',
+            'email' => 'nullable|email|unique:tenants,email,' . $tenant->id,
+        'phone_number' => 'nullable|string|min:10|max:15',
         ]);
 
         $tenant->update($request->all());

@@ -9,6 +9,19 @@
         <a href="{{ route('tenants.create') }}" class="btn btn-primary">Add New Tenant</a>
     </div>
 
+    @foreach ($tenants as $tenant)
+<tr>
+    <td>{{ $tenant->name }}</td>
+    <td>{{ $tenant->phone_number }}</td>
+    <td>
+        <a href="{{ route('tenants.sendSms', $tenant->id) }}" class="btn btn-primary">
+            Send SMS
+        </a>
+    </td>
+</tr>
+@endforeach
+
+
     <!-- Display Tenants -->
     <div class="row">
         @forelse ($tenants as $tenant)

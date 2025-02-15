@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('payment_method')->nullable();  // e.g., Cash, Bank Transfer, Mobile Money
             $table->string('reference')->nullable();       // Transaction reference
             $table->text('notes')->nullable();
+            
             $table->timestamps();
         });
     }

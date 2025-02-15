@@ -21,7 +21,7 @@ class Property extends Model
 
     //protected $fillable = ['name', 'location', 'type', 'owner_id'];
 
-    protected $fillable = [
+  /*  protected $fillable = [
         'name',
         'type',
         'num_units',
@@ -29,7 +29,9 @@ class Property extends Model
         'location',      // Add this line
         'owner_id',
         'manager_id',
-    ];
+    ];*/
+    protected $fillable = ['name', 'type', 'num_units', 'num_floors', 'location', 'owner_id', 'manager_id','default_rent_amount'];
+
     public function units()
     {
         return $this->hasMany(Unit::class);

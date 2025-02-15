@@ -15,13 +15,14 @@ class Unit extends Model
     {
         return $this->belongsTo(Property::class);
     }
-   protected $fillable = [
+  /* protected $fillable = [
         'property_id',
         'unit_number',
         'floor',
         'rent_amount',
         'status',
     ];
-    
+    */
+    protected $fillable = ['property_id', 'unit_number', 'floor', 'rent_amount', 'status'];
 
 }

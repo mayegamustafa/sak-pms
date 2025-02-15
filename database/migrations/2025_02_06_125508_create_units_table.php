@@ -11,19 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-          // Create the units table
-          Schema::create('units', function (Blueprint $table) {
+        Schema::create('units', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('property_id');  // Link to properties
-            $table->string('unit_number');              // E.g., Flat A1, Room 3B
-            $table->integer('floor')->nullable();       // Optional: For multi-story buildings
-            $table->decimal('rent_amount', 15, 2);      // Amount in UGX
-            $table->enum('status', ['Occupied', 'Vacant'])->default('Vacant'); // Status of the unit
+            $table->unsignedBigInteger('property_id');
+            $table->string('unit_number');
+            $table->integer('floor')->nullable();
+            $table->enum('unit_category', ['Single', 'Double', 'Self-contained'])->default('Single');
+            $table->decimal('rent_amount', 10, 2)->nullable(); // Can be null to use property default
+            $table->enum('status', ['Vacant', 'Occupied'])->default('Vacant');
             $table->timestamps();
-
-            // Foreign key constraint to link units to properties
+        
             $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
         });
+        
+
 
         
     }

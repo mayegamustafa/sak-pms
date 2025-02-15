@@ -23,12 +23,16 @@ return new class extends Migration
                 $table->date('lease_end_date')->nullable();
                 $table->decimal('rent_amount', 15, 2);
                 $table->boolean('is_active')->default(true);
+                 $table->decimal('security_deposit', 10, 2);
                 $table->timestamps();
         
                 $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
                 $table->foreign('unit_id')->references('id')->on('units')->onDelete('set null');
             });
         }
+     
+   
+
         
     
 

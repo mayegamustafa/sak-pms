@@ -93,8 +93,13 @@ public function create()
 public function create()
     {
         // Get only users with role 'manager'
-        $managers = User::where('role', 'manager')->get();
-        return view('properties.create', compact('managers'));
+       // $users = User::all();
+       // $managers = User::where('role', 'manager')->get();
+       // return view('properties.create', compact( 'users'));
+       $owners = User::where('role', 'Owner')->get();
+$managers = User::where('role', 'Manager')->get();
+return view('properties.create', compact('owners', 'managers'));
+
     }
      /**
      * Store a newly created property in storage.
@@ -103,86 +108,90 @@ public function create()
     {
         // Validate required fields.
         $request->validate([
-            'name'       => 'required|string',
+            'name'       => 'required|string|max:255',
             'type'       => 'required|in:House,Flat',
             'num_units'  => 'required|integer|min:1',
-            'location'   => 'required|string',
+            'location'   => 'required|string|max:255',
             'owner_id'   => 'required|exists:users,id',
             'manager_id' => 'nullable|exists:users,id',
-            // For flats:
-            'num_floors' => 'nullable|integer|min:1',
-            // Optional: if using a custom per-floor unit count input.
-            'floors_units' => 'nullable|array',
+            'num_floors' => 'nullable|integer|min:1', // Required only for Flats
+            'floors_units' => 'nullable|array', // Optional if using a custom unit count per floor
         ]);
-
-        // Create the property.
+    
+        // Create the property
         $property = Property::create($request->only([
-            'name', 'type', 'num_units', 'num_floors', 'location', 'owner_id', 'manager_id'
+            'name', 'type', 'num_units', 'num_floors', 'location', 'owner_id', 'manager_id','default_rent_amount'
         ]));
-
+    
+        // Automatically generate units for Houses or Flats
         if ($property->type === 'House') {
-            // Generate units for a House.
-            // Use the uppercase first letter of the property name as prefix.
-            $prefix = strtoupper(substr($property->name, 0, 1));
-
-            for ($i = 1; $i <= $property->num_units; $i++) {
-                $unit_code = $prefix . str_pad($i, 2, '0', STR_PAD_LEFT);
-                Unit::create([
-                    'property_id' => $property->id,
-                    'unit_number' => $unit_code,
-                    // For Houses, floor can be null.
-                    'rent_amount' => 0, // or set a default rent
-                    'status'      => 'Vacant',
-                ]);
-            }
+            $this->generateHouseUnits($property);
         } elseif ($property->type === 'Flat') {
-            /*
-              For flats, you might let the user provide an array (via inputs named floors_units[])
-              that gives the number of units per floor.
-              For example, if the user enters:
-                  num_floors = 2 and floors_units = [1 => 3, 2 => 2],
-              then floor 1 will get 3 units and floor 2 will get 2 units.
-              If no floors_units array is provided, we will assume equal distribution.
-            */
-            $floorsUnits = $request->input('floors_units', []);
-
-            if (!empty($floorsUnits)) {
-                foreach ($floorsUnits as $floor => $unitCount) {
-                    for ($i = 1; $i <= $unitCount; $i++) {
-                        // Unit code: "L" + floor number + unit number (padded to 3 digits)
-                        $unit_code = "L" . $floor . str_pad($i, 3, '0', STR_PAD_LEFT);
-                        Unit::create([
-                            'property_id' => $property->id,
-                            'unit_number' => $unit_code,
-                            'floor'       => $floor,
-                            'rent_amount' => 0,
-                            'status'      => 'Vacant',
-                        ]);
-                    }
-                }
-            } else {
-                // If no floors_units array is provided, divide units evenly.
-                $numFloors = $property->num_floors;
-                $unitsPerFloor = intdiv($property->num_units, $numFloors);
-
-                for ($floor = 1; $floor <= $numFloors; $floor++) {
-                    for ($i = 1; $i <= $unitsPerFloor; $i++) {
-                        $unit_code = "L" . $floor . str_pad($i, 3, '0', STR_PAD_LEFT);
-                        Unit::create([
-                            'property_id' => $property->id,
-                            'unit_number' => $unit_code,
-                            'floor'       => $floor,
-                            'rent_amount' => 0,
-                            'status'      => 'Vacant',
-                        ]);
-                    }
-                }
-            }
+            $this->generateFlatUnits($property, $request->input('floors_units', []));
         }
-
+    
         return redirect()->route('properties.index')
                          ->with('success', 'Property created successfully.');
     }
+    
+    /**
+     * Generate units for a House property.
+     */
+    private function generateHouseUnits(Property $property)
+    {
+        $prefix = strtoupper(substr($property->name, 0, 1)); // First letter as prefix
+    
+        for ($i = 1; $i <= $property->num_units; $i++) {
+            $unit_code = $prefix . str_pad($i, 2, '0', STR_PAD_LEFT);
+            Unit::create([
+                'property_id' => $property->id,
+                'unit_number' => $unit_code,
+                'floor'       => null, // Houses do not have floors
+                'rent_amount' => 0, // Default rent
+                'status'      => 'Vacant',
+            ]);
+        }
+    }
+    
+    /**
+     * Generate units for a Flat property.
+     */
+    private function generateFlatUnits(Property $property, array $floorsUnits)
+    {
+        if (!empty($floorsUnits)) {
+            // Custom floor-wise distribution
+            foreach ($floorsUnits as $floor => $unitCount) {
+                for ($i = 1; $i <= $unitCount; $i++) {
+                    $unit_code = "L" . $floor . str_pad($i, 3, '0', STR_PAD_LEFT);
+                    Unit::create([
+                        'property_id' => $property->id,
+                        'unit_number' => $unit_code,
+                        'floor'       => $floor,
+                        'rent_amount' => 0,
+                        'status'      => 'Vacant',
+                    ]);
+                }
+            }
+        } else {
+            // Equal distribution among floors if no specific input is given
+            $numFloors = $property->num_floors;
+            $unitsPerFloor = intdiv($property->num_units, $numFloors);
+    
+            for ($floor = 1; $floor <= $numFloors; $floor++) {
+                for ($i = 1; $i <= $unitsPerFloor; $i++) {
+                    $unit_code = "L" . $floor . str_pad($i, 3, '0', STR_PAD_LEFT);
+                    Unit::create([
+                        'property_id' => $property->id,
+                        'unit_number' => $unit_code,
+                        'floor'       => $floor,
+                        'rent_amount' => 0,
+                        'status'      => 'Vacant',
+                    ]);
+                }
+            }
+        }
+    }
+    
  /*   
 public function store(Request $request)
 {

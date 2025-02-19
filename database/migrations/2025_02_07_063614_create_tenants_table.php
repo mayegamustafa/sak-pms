@@ -12,7 +12,7 @@ return new class extends Migration
     
         public function up(): void
         {
-            Schema::create('tenants', function (Blueprint $table) {
+           /* Schema::create('tenants', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
                 $table->string('email')->nullable()->change();
@@ -29,6 +29,26 @@ return new class extends Migration
                 $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
                 $table->foreign('unit_id')->references('id')->on('units')->onDelete('set null');
             });
+            */
+            Schema::create('tenants', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('email')->nullable();
+                $table->string('phone_number')->nullable();
+                $table->unsignedBigInteger('property_id');
+                $table->unsignedBigInteger('unit_id')->nullable();
+                $table->date('lease_start_date');
+                $table->date('lease_end_date')->nullable();
+                $table->decimal('rent_amount', 15, 2);
+                $table->decimal('security_deposit', 10, 2)->default(0.00); // Track deposit per tenant
+                $table->boolean('is_active')->default(true); // Tenant is active by default
+
+                $table->timestamps();
+    
+                $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
+                $table->foreign('unit_id')->references('id')->on('units')->onDelete('set null');
+            });
+
         }
      
    

@@ -9,6 +9,11 @@
         <a href="{{ route('tenants.create') }}" class="btn btn-primary">Add New Tenant</a>
     </div>
 
+    <form action="{{ route('tenants.sendBulkSms') }}" method="POST">
+    @csrf
+    <button type="submit" class="btn btn-primary">Send Bulk SMS</button>
+</form>
+
     @foreach ($tenants as $tenant)
 <tr>
     <td>{{ $tenant->name }}</td>

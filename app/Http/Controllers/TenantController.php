@@ -8,10 +8,14 @@ use App\Models\Property;
 use App\Models\Unit;
 use Illuminate\Http\Request;
 use App\Services\SmsService;
+use Illuminate\Support\Facades\DB;
+
 
 
 class TenantController extends Controller
 {
+    protected $smsService;
+
     // Display all tenants
     public function index()
     {
@@ -26,6 +30,7 @@ class TenantController extends Controller
         $units = Unit::all();
         return view('tenants.create', compact('properties','units'));
     }
+    /*
 
 public function sendSmsToTenant($tenantId, SmsService $smsService)
 {
@@ -40,8 +45,18 @@ public function sendSmsToTenant($tenantId, SmsService $smsService)
     $smsService->sendSms($tenant->phone_number, $message);
 
     return redirect()->back()->with('success', 'SMS sent successfully.');
-}
+} */
 
+public function __construct(SmsService $smsService)
+    {
+        $this->smsService = $smsService;
+    }
+
+    public function sendBulkSms()
+    {
+        $response = $this->smsService->sendBulkSms();
+        return redirect()->back()->with('success', $response);
+    }
 
  /*   public function getUnits($property_id)
 {
@@ -66,7 +81,7 @@ public function sendSmsToTenant($tenantId, SmsService $smsService)
 
         return redirect()->route('tenants.index')->with('success', 'Tenant added successfully!');
     }  */
-    public function store(Request $request)
+ /*   public function store(Request $request)
     {
         // Start a transaction to ensure both the tenant and unit are saved correctly
         DB::beginTransaction();
@@ -76,10 +91,16 @@ public function sendSmsToTenant($tenantId, SmsService $smsService)
             $tenant = Tenant::create([
                 'name' => $request->name,
                 'property_id' => $request->property_id,
+                'email' => $request->email,
                 'unit_id' => $request->unit_id,
                 'phone_number' => $request->phone_number,
                 'lease_start_date' => $request->lease_start_date,
+                'lease_end_date' => $request->lease_end_date,
+                'security_deposit' => $request->security_deposit,
                 'rent_amount' => $request->rent_amount,
+               'is_active' => $request->is_active,
+               
+             
             ]);
 
             // Update the selected unit to "Occupied"
@@ -98,6 +119,51 @@ public function sendSmsToTenant($tenantId, SmsService $smsService)
             return back()->with('error', 'An error occurred while adding the tenant');
         }
     }
+    */
+    public function store(Request $request)
+    {
+        // Validate incoming request
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'property_id' => 'required|exists:properties,id',
+            'unit_id' => 'nullable|exists:units,id',
+            'phone_number' => 'required|string|max:15',
+            'lease_start_date' => 'required|date',
+            'rent_amount' => 'required|numeric',
+        ]);
+    
+        // Start a database transaction
+        DB::beginTransaction();
+    
+        try {
+            // Create a new tenant
+            $tenant = Tenant::create([
+                'name' => $request->name,
+                'property_id' => $request->property_id,
+                'unit_id' => $request->unit_id,
+                'phone_number' => $request->phone_number,
+                'lease_start_date' => $request->lease_start_date,
+                'rent_amount' => $request->rent_amount,
+            ]);
+    
+            // If a unit is assigned, update its status to "Occupied"
+            if ($request->unit_id) {
+                $unit = Unit::findOrFail($request->unit_id);
+                $unit->status = 'Occupied';
+                $unit->save();
+            }
+    
+            // Commit the transaction
+            DB::commit();
+    
+            return redirect()->route('tenants.index')->with('success', 'Tenant added successfully!');
+        } catch (\Exception $e) {
+            // Rollback in case of error
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Error adding tenant: ' . $e->getMessage());
+        }
+    }
+
  /*   public function store(Request $request)
 {
     // Exclude _token from the request before passing it to the model

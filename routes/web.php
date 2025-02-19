@@ -175,3 +175,8 @@ Route::get('/properties/{propertyId}/vacant-units', function ($propertyId) {
         'units' => $vacantUnits
     ]);
 });
+
+
+
+
+Route::post('/tenants/send-bulk-sms', [TenantController::class, 'sendBulkSms'])->name('tenants.sendBulkSms');

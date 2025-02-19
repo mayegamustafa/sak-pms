@@ -32,6 +32,16 @@ class Property extends Model
     ];*/
     protected $fillable = ['name', 'type', 'num_units', 'num_floors', 'location', 'owner_id', 'manager_id','default_rent_amount'];
 
+   /* protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($property) {
+            $property->security_deposit = $property->security_deposit ?? 100000; // Default deposit
+            $property->is_active = $property->is_active ?? true; // Default active
+        });
+    }
+    */
     public function units()
     {
         return $this->hasMany(Unit::class);

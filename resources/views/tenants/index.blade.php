@@ -4,6 +4,31 @@
 <div class="container">
     <h1 class="mb-4">Tenant Management</h1>
 
+    <h2>Active Tenants</h2>
+<table>
+    <tr><th>Name</th><th>Unit</th><th>Lease End</th></tr>
+    @foreach($activeTenants as $tenant)
+        <tr><td>{{ $tenant->name }}</td><td>{{ $tenant->unit->unit_number }}</td><td>{{ $tenant->lease_end_date }}</td></tr>
+    @endforeach
+</table>
+
+<h2>Past Tenants</h2>
+<table>
+    <tr><th>Name</th><th>Unit</th><th>Lease End</th></tr>
+    @foreach($pastTenants as $tenant)
+        <tr><td>{{ $tenant->name }}</td><td>{{ $tenant->unit->unit_number }}</td><td>{{ $tenant->lease_end_date }}</td></tr>
+    @endforeach
+</table>
+
+<h2>Vacant Units</h2>
+<table>
+    <tr><th>Unit</th><th>Property</th></tr>
+    @foreach($vacantUnits as $unit)
+        <tr><td>{{ $unit->unit_number }}</td><td>{{ $unit->property->name }}</td></tr>
+    @endforeach
+</table>
+
+
     <!-- Action Button -->
     <div class="mb-4">
         <a href="{{ route('tenants.create') }}" class="btn btn-primary">Add New Tenant</a>

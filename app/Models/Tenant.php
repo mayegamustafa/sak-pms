@@ -42,7 +42,18 @@ class Tenant extends Model
                 Unit::where('id', $tenant->unit_id)->update(['status' => 'Vacant']);
             }
         });
+
+        static::saving(function ($tenant) {
+            $tenant->is_active = $tenant->isActive();
+            
+            // Update Unit Status
+            if ($tenant->unit_id) {
+                $tenant->unit()->update(['status' => $tenant->is_active ? 'Occupied' : 'Vacant']);
+            }
+        });
     }
+
+    
    /* protected static function boot()
     {
         parent::boot();
@@ -75,6 +86,12 @@ class Tenant extends Model
         $this->attributes['is_active'] = $value;
     }
 }
+
+public function isActive()
+{
+    return $this->lease_end_date && $this->lease_end_date >= now();
+}
+
 
    
 

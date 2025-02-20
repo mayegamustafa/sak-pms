@@ -11,6 +11,12 @@
         <a href="{{ route('properties.export.excel') }}" class="btn btn-success">Export to Excel</a>
     </div>
     
+    @if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
       <!-- Search and Filter Form -->
       <form method="GET" action="{{ route('properties.index') }}" class="mb-4">
         <div class="row">

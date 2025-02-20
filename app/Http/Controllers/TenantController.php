@@ -21,10 +21,16 @@ class TenantController extends Controller
 
     // Display all tenants
     public function index()
-    {
-        $tenants = Tenant::with('property', 'unit')->paginate(10);
-        return view('tenants.index', compact('tenants'));
-    }
+{
+    $tenants = Tenant::with('property', 'unit')->paginate(10);
+
+    $activeTenants = Tenant::where('is_active', true)->get();
+    $pastTenants = Tenant::where('is_active', false)->get();
+    $vacantUnits = Unit::where('status', 'Vacant')->get();
+
+    return view('tenants.index', compact('activeTenants', 'pastTenants', 'vacantUnits','tenants'));
+}
+
 
     // Show form to create a new tenant
     public function create()
@@ -191,8 +197,39 @@ public function __construct(SmsService $smsService)
             return back()->with('error', 'An error occurred while adding the tenant');
         }
     }
-    */
-    public function store(Request $request)
+    */public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'property_id' => 'required|exists:properties,id',
+        'unit_id' => 'required|exists:units,id',
+        'lease_start_date' => 'required|date',
+        'months_paid' => 'required|integer|min:1', // Number of months the tenant is paying for
+    ]);
+
+    // Fetch unit and rent amount
+    $unit = Unit::findOrFail($request->unit_id);
+    $rentAmount = $unit->rent_amount; // Assuming unit has a 'rent_amount' column
+
+    // Calculate lease end date
+    $startDate = \Carbon\Carbon::parse($request->lease_start_date);
+    $endDate = $startDate->addMonths($request->months_paid);
+
+    // Create Tenant Record
+    $tenant = Tenant::create([
+        'name' => $request->name,
+        'property_id' => $request->property_id,
+        'unit_id' => $request->unit_id,
+        'lease_start_date' => $request->lease_start_date,
+        'lease_end_date' => $endDate, // Automatically set
+        'rent_amount' => $rentAmount,
+        'months_paid' => $request->months_paid, // Store months paid for reference
+    ]);
+
+    return redirect()->route('tenants.index')->with('success', 'Tenant added successfully!');
+}
+
+  /*  public function store(Request $request)
     {
         // Validate incoming request
         $request->validate([
@@ -235,7 +272,7 @@ public function __construct(SmsService $smsService)
             return redirect()->back()->with('error', 'Error adding tenant: ' . $e->getMessage());
         }
     }
-
+*/
  /*   public function store(Request $request)
 {
     // Exclude _token from the request before passing it to the model

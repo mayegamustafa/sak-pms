@@ -3,7 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
-
+use App\Http\Controllers\LeaseController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\OwnerController;
@@ -15,7 +15,7 @@ use App\Http\Controllers\TenantController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentAnalysisController;
-use App\Http\Controllers\LeaseController;
+
 use App\Models\Unit;
 
 /*
@@ -148,7 +148,7 @@ Route::get('invoices/{id}', [InvoiceController::class, 'show'])->name('invoices.
 
 Route::get('invoices/{id}/pdf', [InvoiceController::class, 'generateInvoicePDF'])->name('invoices.pdf');
 
-Route::resource('leases', LeaseController::class);
+//Route::resource('leases', LeaseController::class);
 //Route::resource('payments', PaymentController::class);
 Route::get('report/payments', [PaymentAnalysisController::class, 'report'])->name('payments.report');
 
@@ -177,6 +177,20 @@ Route::get('/properties/{propertyId}/vacant-units', function ($propertyId) {
 });
 
 
+Route::get('/properties/{property}/vacant-units', function ($propertyId) {
+    $units = \App\Models\Unit::where('property_id', $propertyId)
+        ->where('status', 'Vacant')
+        ->get(['id', 'unit_number', 'rent_amount']);
+
+    return response()->json(['units' => $units]);
+});
+
 
 
 Route::post('/tenants/send-bulk-sms', [TenantController::class, 'sendBulkSms'])->name('tenants.sendBulkSms');
+
+
+
+Route::resource('leases', LeaseController::class);
+Route::put('/leases/{id}/renew', [LeaseController::class, 'renew'])->name('leases.renew');
+Route::put('/leases/{id}/terminate', [LeaseController::class, 'terminate'])->name('leases.terminate');

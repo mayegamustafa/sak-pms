@@ -146,13 +146,15 @@ return view('properties.create', compact('owners', 'managers'));
                 }
             }
         }
-    
+
         // Return the saved property as a JSON response
-        return response()->json([
+     /* return response()->json([
             'status' => 'success',
             'property' => $property,
-        ], 200);
+        ], 200);  */
+        return redirect()->route('properties.create')->with('success', 'Property added successfully!');
     }
+    
     
     /**
      * Generate units for a House property.

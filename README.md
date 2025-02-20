@@ -25,6 +25,7 @@ User::create([
     'role' => User::ROLE_MANAGER,
 ]);
 
+
 User::create([
     'name' => 'Property Owner',
     'email' => 'owner@example.com',

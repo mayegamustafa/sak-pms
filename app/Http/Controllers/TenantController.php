@@ -9,12 +9,15 @@ use App\Models\Unit;
 use Illuminate\Http\Request;
 use App\Services\SmsService;
 use Illuminate\Support\Facades\DB;
+use Twilio\Rest\Client;
 
 
 
 class TenantController extends Controller
 {
     protected $smsService;
+    //protected $smsService;
+    protected $twilio;
 
     // Display all tenants
     public function index()
@@ -45,11 +48,80 @@ public function sendSmsToTenant($tenantId, SmsService $smsService)
     $smsService->sendSms($tenant->phone_number, $message);
 
     return redirect()->back()->with('success', 'SMS sent successfully.');
+} */public function sendSmsToTenant($tenantId)
+{
+    $tenant = Tenant::find($tenantId);
+
+    if (!$tenant) {
+        return response()->json(['error' => 'Tenant not found'], 404);
+    }
+
+    if (empty($tenant->phone_number)) {
+        return response()->json(['error' => 'Tenant phone number is missing'], 400);
+    }
+
+    // Calculate months since lease started
+    $leaseStart = \Carbon\Carbon::parse($tenant->lease_start_date);
+    $now = \Carbon\Carbon::now();
+    $monthsDue = $leaseStart->diffInMonths($now);
+
+    // Calculate total rent due
+    $totalRentDue = $tenant->rent_amount * $monthsDue;
+
+    // Get total payments made (assuming a payments table)
+    $totalPayments = \DB::table('payments')
+        ->where('tenant_id', $tenant->id)
+        ->sum('amount_paid');
+
+    // Calculate balance
+    $balance = $totalRentDue - $totalPayments - $tenant->security_deposit;
+
+    // Prepare SMS message
+    $message = "Hello {$tenant->name}, your balance is UGX " . number_format($balance) . ". Your lease started on: {$tenant->lease_start_date}. Please clear it before your lease ends on: {$tenant->lease_end_date}. Thank you!";
+
+    try {
+        $this->twilio->messages->create($tenant->phone_number, [
+            'from' => env('TWILIO_FROM'),
+            'body' => $message
+        ]);
+        return redirect()->back()->with('success', 'SMS sent successfully.');
+    } catch (\Exception $e) {
+        return redirect()->back()->with(['error' => 'SMS failed: ' . $e->getMessage()], 500);
+    }
+}
+
+/*
+public function sendSmsToTenant($tenantId)
+{
+    $tenant = Tenant::find($tenantId);
+
+    if (!$tenant) {
+        return response()->json(['error' => 'Tenant not found'], 404);
+    }
+
+    if (empty($tenant->phone_number)) {
+        return response()->json(['error' => 'Tenant phone number is missing'], 400);
+    }
+
+    $message = "Hello {$tenant->name}, your balance is UGX {$tenant->balance}. Reason: {$tenant->reason}. Please clear it. Thank you!";
+
+    try {
+        $this->twilio->messages->create($tenant->phone_number, [
+            'from' => env('TWILIO_FROM'),
+            'body' => $message
+        ]);
+
+        return response()->json(['success' => 'SMS sent successfully']);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'SMS failed: ' . $e->getMessage()], 500);
+    }
 } */
+
 
 public function __construct(SmsService $smsService)
     {
         $this->smsService = $smsService;
+        $this->twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
     }
 
     public function sendBulkSms()

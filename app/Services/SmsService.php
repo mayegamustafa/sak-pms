@@ -21,7 +21,7 @@ class SmsService
             $message = "Hello {$tenant->name}, your balance is UGX {$tenant->balance}. Reason: {$tenant->reason}. Please clear it. Thank you!";
             
             try {
-                $this->twilio->messages->create($tenant->phone, [
+                $this->twilio->messages->create($tenant->phone_number, [
                     'from' => env('TWILIO_FROM'),
                     'body' => $message
                 ]);

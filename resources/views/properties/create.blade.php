@@ -5,7 +5,6 @@
     <h1>Create Property</h1>
 
     <form action="{{ route('properties.store') }}" method="POST">
-        
         @csrf
 
         <!-- Property Name -->
@@ -13,7 +12,7 @@
             <label for="name">Property Name</label>
             <input type="text" name="name" id="name" class="form-control" required>
         </div>
-        <button type="submit" class="btn btn-primary">Create Property</button>
+
         <!-- Property Type -->
         <div class="form-group">
             <label for="type">Property Type</label>
@@ -27,13 +26,13 @@
         <!-- Number of Units (Hidden for Flats) -->
         <div class="form-group" id="num_units_div">
             <label for="num_units">Total Number of Units</label>
-            <input type="number" name="num_units" id="num_units" class="form-control" min="1" required>
+            <input type="number" name="num_units" id="num_units" class="form-control" min="1">
         </div>
 
         <!-- Unit Price (Hidden for Flats) -->
         <div class="form-group" id="unit_price_div">
             <label for="unit_price">Unit Price (UGX)</label>
-            <input type="number" name="unit_price" id="unit_price" class="form-control" min="0" required>
+            <input type="number" name="unit_price" id="unit_price" class="form-control" min="0">
         </div>
         
         <!-- Location -->
@@ -85,31 +84,45 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Create Property</button>
+        <button type="submit" class="btn btn-primary" id="create-property-btn">Create Property</button>
     </form>
 </div>
 
 <script>
+    document.getElementById('create-property-btn').addEventListener('click', function(e) {
+        console.log('Button clicked!');
+    });
+
     // Show/hide flat details based on property type selection
-    document.getElementById('type').addEventListener('change', function(){
-        if(this.value === 'Flat'){
+    document.getElementById('type').addEventListener('change', function() {
+        if (this.value === 'Flat') {
+            // Show flat details and hide number of units and price fields
             document.getElementById('flat-details').style.display = 'block';
             document.getElementById('num_units_div').style.display = 'none';
             document.getElementById('unit_price_div').style.display = 'none';
+
+            // Remove required attribute for num_units and unit_price
+            document.getElementById('num_units').removeAttribute('required');
+            document.getElementById('unit_price').removeAttribute('required');
         } else {
+            // Hide flat details and show number of units and price fields
             document.getElementById('flat-details').style.display = 'none';
             document.getElementById('num_units_div').style.display = 'block';
             document.getElementById('unit_price_div').style.display = 'block';
+
+            // Add required attribute for num_units and unit_price
+            document.getElementById('num_units').setAttribute('required', 'required');
+            document.getElementById('unit_price').setAttribute('required', 'required');
         }
     });
 
     // When the number of floors is entered, create inputs for units per floor
-    document.getElementById('num_floors').addEventListener('change', function(){
+    document.getElementById('num_floors').addEventListener('change', function() {
         var numFloors = parseInt(this.value);
         var container = document.getElementById('floors-units-container');
         container.innerHTML = ''; // Clear previous inputs
 
-        for(var i = 1; i <= numFloors; i++){
+        for (var i = 1; i <= numFloors; i++) {
             // Create a new input for each floor
             var div = document.createElement('div');
             div.className = 'form-group';

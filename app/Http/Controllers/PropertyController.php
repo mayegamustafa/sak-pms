@@ -106,32 +106,52 @@ return view('properties.create', compact('owners', 'managers'));
      */
     public function store(Request $request)
     {
-        // Validate required fields.
+        // Validate the input data
         $request->validate([
-            'name'       => 'required|string|max:255',
-            'type'       => 'required|in:House,Flat',
-            'num_units'  => 'required|integer|min:1',
-            'location'   => 'required|string|max:255',
-            'owner_id'   => 'required|exists:users,id',
+            'name' => 'required|string',
+            'location' => 'required|string',  // Add validation for location
+            'type' => 'required|in:House,Flat',  // Validating type
+            'num_units' => 'required|integer',
+            'num_floors' => 'nullable|integer',
+            'owner_id' => 'required|exists:users,id',
             'manager_id' => 'nullable|exists:users,id',
-            'num_floors' => 'nullable|integer|min:1', // Required only for Flats
-            'floors_units' => 'nullable|array', // Optional if using a custom unit count per floor
         ]);
     
-        // Create the property
-        $property = Property::create($request->only([
-            'name', 'type', 'num_units', 'num_floors', 'location', 'owner_id', 'manager_id','default_rent_amount'
-        ]));
+        // Save the property first
+        $property = Property::create([
+            'name' => $request->name,
+            'location' => $request->location,
+            'type' => $request->type,
+            'num_units' => $request->num_units,
+            'num_floors' => $request->num_floors,
+            'owner_id' => $request->owner_id,
+            'manager_id' => $request->manager_id,
+        ]);
     
-        // Automatically generate units for Houses or Flats
-        if ($property->type === 'House') {
-            $this->generateHouseUnits($property);
-        } elseif ($property->type === 'Flat') {
-            $this->generateFlatUnits($property, $request->input('floors_units', []));
+        // Generate unit codes and save units if the property is of type 'Flat'
+        if ($property->type == 'Flat') {
+            $numFloors = $property->num_floors;
+            $unitsPerFloor = ceil($property->num_units / $numFloors);
+    
+            for ($floor = 1; $floor <= $numFloors; $floor++) {
+                for ($i = 1; $i <= $unitsPerFloor; $i++) {
+                    $unit_code = "L" . $floor . str_pad($i, 3, '0', STR_PAD_LEFT);
+                    Unit::create([
+                        'property_id' => $property->id,
+                        'unit_number' => $unit_code,
+                        'floor' => $floor,
+                        'rent_amount' => 0,  // You can set the rent amount to a default value here
+                        'status' => 'Vacant',
+                    ]);
+                }
+            }
         }
     
-        return redirect()->route('properties.index')
-                         ->with('success', 'Property created successfully.');
+        // Return the saved property as a JSON response
+        return response()->json([
+            'status' => 'success',
+            'property' => $property,
+        ], 200);
     }
     
     /**

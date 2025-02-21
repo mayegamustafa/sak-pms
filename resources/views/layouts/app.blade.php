@@ -36,11 +36,16 @@
                 @endif
 
                 <!-- Page Content -->
+                <div :class="{'ml-64': open, 'ml-0': !open}" class="transition-all duration-300">
+        <!-- Your main content goes here -->
+        <div class="p-4">
+            <h1 class="text-xl font-semibold"></h1>
                 <main class="p-6">
                     @yield('content')
                 </main>
             </div>
-
+</div>
+</div>
         </div>
     </body>
 </html>

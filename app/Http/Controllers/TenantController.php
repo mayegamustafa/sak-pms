@@ -25,8 +25,15 @@ class TenantController extends Controller
     $tenants = Tenant::with('property', 'unit')->paginate(10);
 
     $activeTenants = Tenant::where('is_active', true)->get();
-    $pastTenants = Tenant::where('is_active', false)->get();
-    $vacantUnits = Unit::where('status', 'Vacant')->get();
+   // $pastTenants = Tenant::where('is_active', false)->get();
+   $pastTenants = Tenant::where('is_active', false)->with('unit')->paginate(5, ['*'], 'past_page');
+   // $vacantUnits = Unit::where('status', 'Vacant')->get();
+
+    //$activeTenants = Tenant::where('is_active')->with('unit')->paginate(5, ['*'], 'active_page');
+    //$pastTenants = Tenant::where('status', 'past')->with('unit')->paginate(5, ['*'], 'past_page');
+    $vacantUnits = Unit::where('status', 'Vacant', false)->with('property')->paginate(5, ['*'], 'vacant_page');
+    $tenants = Tenant::with('property', 'unit')->paginate(9); // existing tenant cards
+
 
     return view('tenants.index', compact('activeTenants', 'pastTenants', 'vacantUnits','tenants'));
 }

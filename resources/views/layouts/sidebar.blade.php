@@ -59,6 +59,27 @@
                     </li>
                 </ul>
             </li>
+              <!-- Properties Dropdown -->
+              <li x-data="{ open: false }">
+                <button @click="open = !open" class="w-full flex justify-between px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
+                    Payments
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <ul x-show="open" class="pl-4 space-y-1">
+                    <li>
+                        <a href="{{ route('payments.index') }}" class="block px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700">
+                            View Payments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('payments.create1') }}" class="block px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700">
+                            Add Payment
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
             <!-- Tenants Dropdown -->
             <li x-data="{ open: false }">

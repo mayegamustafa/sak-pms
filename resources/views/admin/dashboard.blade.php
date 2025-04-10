@@ -69,10 +69,11 @@
 </div>
 
 <!-- Rent Collection Chart -->
-<div class="chart-container">
-    <canvas id="rentCollectionChart"></canvas>
+<!-- Rent Collection Chart -->
+<div class="bg-white shadow rounded-lg p-6 mb-10">
+    <h2 class="text-lg font-semibold mb-4">Rent Collection Statistics</h2>
+    <canvas id="rentCollectionChart" width="400" height="200"></canvas>
 </div>
-
 <!-- ✅ Tenant Overview Section -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
@@ -161,12 +162,12 @@
 
 </div>
 <!-- Rent Collection Chart -->
-<div class="chart-container">
-    <canvas id="rentCollectionChart"></canvas>
+<div class="bg-white shadow rounded-lg p-6 mb-10">
+    <h2 class="text-lg font-semibold mb-4">Tenants Statistics</h2>
+    <canvas id="tenantChart" width="400" height="200"></canvas>
 </div>
 
-<!-- Tenant Stats Chart -->
-<canvas id="tenantChart" height="100"></canvas>
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -226,6 +227,32 @@
             }
         }
     });
+    
 </script>
+<script>
+    const rentCollectionStats = @php echo json_encode($rentCollectionStats); @endphp;  // Inject PHP data as JavaScript array
 
+    const ctx = document.getElementById('rentCollectionChart').getContext('2d');
+
+    const rentCollectionChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            datasets: [{
+                label: 'Rent Collected (UGX)',
+                data: rentCollectionStats,  // Use the data from PHP directly
+                backgroundColor: '#4CAF50',
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
 @endsection

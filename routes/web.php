@@ -16,6 +16,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentAnalysisController;
 
+
 use App\Models\Unit;
 
 /*
@@ -194,3 +195,7 @@ Route::post('/tenants/send-bulk-sms', [TenantController::class, 'sendBulkSms'])-
 Route::resource('leases', LeaseController::class);
 Route::put('/leases/{id}/renew', [LeaseController::class, 'renew'])->name('leases.renew');
 Route::put('/leases/{id}/terminate', [LeaseController::class, 'terminate'])->name('leases.terminate');
+
+Route::get('/payments/create1', [PaymentController::class, 'create1'])->name('payments.create1');
+Route::post('/payments/store1', [PaymentController::class, 'store1'])->name('payments.store1');
+Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');

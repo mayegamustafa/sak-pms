@@ -199,3 +199,7 @@ Route::put('/leases/{id}/terminate', [LeaseController::class, 'terminate'])->nam
 Route::get('/payments/create1', [PaymentController::class, 'create1'])->name('payments.create1');
 Route::post('/payments/store1', [PaymentController::class, 'store1'])->name('payments.store1');
 Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+
+Route::middleware(['auth', 'role:owner'])->group(function () {
+    Route::get('/owner/export/{type}', [OwnerController::class, 'export'])->name('owner.export');
+});

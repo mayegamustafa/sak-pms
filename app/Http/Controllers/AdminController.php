@@ -48,8 +48,13 @@ class AdminController extends Controller
         // Occupancy & counts
         $totalActiveTenants = Tenant::where('is_active', true)->count();
         $totalPastTenants = Tenant::where('is_active', false)->count();
-        $totalOccupiedUnits = Unit::where('is_occupied', true)->count();
-        $occupancyRate = $this->calculateOccupancyRate();
+        //$totalOccupiedUnits = Unit::where('is_occupied', true)->count();
+        
+        $totalOccupiedUnits = Unit::where('status', 'Occupied')->count();
+        $occupancyRate = $this->calculateOccupancyRate('status');
+        
+
+     //   $occupancyRate = $this->calculateOccupancyRate();
 
         return view('admin.dashboard', compact(
             'tenantStats',
@@ -98,12 +103,24 @@ class AdminController extends Controller
     /**
      * Calculate occupancy rate based on units.
      */
-    private function calculateOccupancyRate()
+   /* private function calculateOccupancyRate()
     {
         $totalUnits = Unit::count();
         $occupiedUnits = Unit::where('is_occupied', true)->count();
         return $totalUnits > 0 ? round(($occupiedUnits / $totalUnits) * 100, 2) : 0;
-    }
+    } */
+
+    private function calculateOccupancyRate($checkColumn = 'is_occupied')
+{
+    $totalUnits = Unit::count();
+
+    $occupiedUnits = $checkColumn === 'status'
+        ? Unit::where('status', 'Occupied')->count()
+        : Unit::where('is_occupied', true)->count();
+
+    return $totalUnits > 0 ? round(($occupiedUnits / $totalUnits) * 100, 2) : 0;
+}
+
 
     /**
      * Export tenants to CSV.
